@@ -44,23 +44,23 @@ def f_difference(i, del_p, p=500, t=20):
 
 
 
-# annual interest rate scenarios
+# Annual interest rate scenarios
 sensitivity_i = np.linspace(2.6, 20, 50)
 
-# property crash % scenarios
+# Property crash % scenarios
 sensitivity_del_p = np.linspace(10, 30, 50)
 
-# coordinate arrays
+# Coordinate arrays
 X, Y = np.meshgrid(sensitivity_i, sensitivity_del_p)
 Z = f_difference(X, Y)
 Z_rounded = np.around(Z, decimals=4)*100
 
+# Plot sensitivity analysis
 levels = np.append(sensitivity_i,sensitivity_del_p)
 
 fig, ax = plt.subplots()
 ax.grid(True,alpha=0.5)
-#cs = ax.contour(xx, yy, zz, levels=levels)
-cs = ax.contour(X, Y, Z_rounded)
+cs = ax.contour(X, Y, Z_rounded, levels=levels)
 
 ax.clabel(cs, inline=True, fontsize=10)
 
