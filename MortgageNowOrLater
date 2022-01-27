@@ -1,0 +1,69 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+def f_monthly_payment(p, r, n):
+	""" Formula to calculate the monthly payment amount.
+	
+    Inputs:
+		p: principal
+		r: effective interest rate on monthly payments
+		n: number of payments
+	"""
+	
+	return (p*r*(1+r)**n) / ((1+r)**n-1)
+
+
+def f_difference(i, del_p, p=500, t=20):
+    """ Calculate ratio between cost of principal and interest for a mortgage
+        taken immediately against mortgage taken after rate-hike and crash
+        in real estate prices.
+        
+    Inputs:
+        i:      annueal interest on mortgate after rate hike (%)
+        del_p:  expected principal required after property marker crash (%)
+        p:      principal before property market crash
+        t:      loan duration (years)
+    """
+    
+    # Current interest rate on UK mortgage (Statista, mean on fixed 10 year)
+    i_current = 2.6
+    r_current = i_current/12/100
+    
+    # Hypothetical interest rate after rate hike
+    r = i/12/100
+    
+    # Number of payments
+    n = t/12
+    
+    sum_pre_crash = n * f_monthly_payment(p, r_current, n)
+    sum_post_crash = n * f_monthly_payment(p*(1-del_p/100), r, n)
+    
+    return 1 - sum_post_crash / sum_pre_crash
+
+
+
+# annual interest rate scenarios
+sensitivity_i = np.linspace(2.6, 20, 50)
+
+# property crash % scenarios
+sensitivity_del_p = np.linspace(10, 30, 50)
+
+# coordinate arrays
+X, Y = np.meshgrid(sensitivity_i, sensitivity_del_p)
+Z = f_difference(X, Y)
+Z_rounded = np.around(Z, decimals=4)*100
+
+levels = np.append(sensitivity_i,sensitivity_del_p)
+
+fig, ax = plt.subplots()
+ax.grid(True,alpha=0.5)
+#cs = ax.contour(xx, yy, zz, levels=levels)
+cs = ax.contour(X, Y, Z_rounded)
+
+ax.clabel(cs, inline=True, fontsize=10)
+
+ax.set_xlabel('Interest on fixed-rate mortgage (%)', labelpad=10)
+ax.set_ylabel('Depreciation in property prices (%)', labelpad=10)
+ax.set_title('Relative savings acheived (%)')
